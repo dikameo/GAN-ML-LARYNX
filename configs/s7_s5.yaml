@@ -1,0 +1,9 @@
+_base: base.yaml
+scenario: S7_S5
+splits_name: s7
+gan:
+  lambda_roi: 0.0
+synthetic:
+  gan_scenario: S7_S5
+  ratio: best        # konfigurasi terbaik S5 dari VALIDASI (outputs/results/best_config.json)
+  best_from: S5

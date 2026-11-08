@@ -10,11 +10,13 @@ from __future__ import annotations
 
 import argparse
 import os
+import platform
 import time
 
 import psutil
 import torch
 
+from src.models import autocast, configure_threads, use_amp
 from src.utils import atomic_write_json, config_hash, load_config, set_seed
 
 
@@ -35,31 +37,43 @@ def run(cfg: dict, pretrained: bool, batch_size: int | None = None, timed: int |
     n_timed = timed or bm["timed_steps"]
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    configure_threads(cfg)
     model = build_model(md["hf_name"], cfg["paths"]["hf_cache"], md["num_classes"], pretrained).to(device)
     model.train()
     opt = torch.optim.AdamW(model.parameters(), lr=tr["lr"], weight_decay=tr["weight_decay"])
+    amp = use_amp(cfg)
+    scaler = torch.amp.GradScaler("cuda", enabled=amp)
     size = md["input_size"]
     x = torch.randn(bs, 3, size, size, device=device)
     y = torch.randint(0, md["num_classes"], (bs,), device=device)
     lossf = torch.nn.CrossEntropyLoss()
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
 
     def step():
         opt.zero_grad(set_to_none=True)
-        loss = lossf(model(pixel_values=x).logits, y)
-        loss.backward()
-        opt.step()
+        with autocast(cfg):
+            logits = model(pixel_values=x).logits
+        loss = lossf(logits.float(), y)
+        scaler.scale(loss).backward()
+        scaler.step(opt)
+        scaler.update()
 
-    for _ in range(bm["warmup_steps"]):
+    for i in range(bm["warmup_steps"]):
+        t0 = time.perf_counter()
         step()
+        print(f"[pemanasan {i + 1}/{bm['warmup_steps']}] {time.perf_counter() - t0:.1f} dtk "
+              f"(batch={bs}, thread={torch.get_num_threads()})", flush=True)
     if device == "cuda":
         torch.cuda.synchronize()
     times = []
-    for _ in range(n_timed):
+    for i in range(n_timed):
         t0 = time.perf_counter()
         step()
         if device == "cuda":
             torch.cuda.synchronize()
         times.append(time.perf_counter() - t0)
+        print(f"[terukur {i + 1}/{n_timed}] {times[-1]:.1f} dtk", flush=True)
 
     mean_step = sum(times) / len(times)
     steps_per_epoch = -(-bm["assumed_train_images"] // bs)
@@ -76,6 +90,10 @@ def run(cfg: dict, pretrained: bool, batch_size: int | None = None, timed: int |
         "estimated_epoch_seconds": mean_step * steps_per_epoch,
         "estimated_epoch_minutes": mean_step * steps_per_epoch / 60,
         "estimated_30_epoch_hours_per_job": mean_step * steps_per_epoch * tr["max_epochs"] / 3600,
+        "host": platform.node(),
+        "amp": amp,
+        "gpu": torch.cuda.get_device_name(0) if device == "cuda" else None,
+        "peak_gpu_gb": torch.cuda.max_memory_allocated() / 1e9 if device == "cuda" else None,
         "ram_rss_gb": psutil.Process().memory_info().rss / 1e9,
         "torch_threads": torch.get_num_threads(),
         "cpu_count": os.cpu_count(),

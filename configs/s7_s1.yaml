@@ -1,0 +1,3 @@
+_base: base.yaml
+scenario: S7_S1     # S7: latih pada resolusi mayoritas, uji gabungan resolusi lain (L5)
+splits_name: s7

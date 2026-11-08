@@ -21,3 +21,7 @@ nbformat
 nbclient
 ipykernel
 pytest
+pyradiomics
+SimpleITK
+ctgan
+lpips

@@ -19,3 +19,8 @@ __pycache__/
 .ipynb_checkpoints/
 .pytest_cache/
 .venv/
+
+# Website: bobot ekspor dan contoh demo (data medis) tidak masuk git
+website/model/
+website/examples/
+*.bak

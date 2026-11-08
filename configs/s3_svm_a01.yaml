@@ -1,0 +1,6 @@
+_base: base.yaml
+scenario: S3_svm_a01
+s3:
+  model: svm
+  lasso_alpha: 0.01
+  use_ctgan: false

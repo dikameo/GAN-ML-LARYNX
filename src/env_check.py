@@ -16,7 +16,8 @@ from pathlib import Path
 from src.utils import atomic_write_json, load_config
 
 REQUIRED = ["torch", "torchvision", "transformers", "numpy", "pandas", "scipy", "sklearn",
-            "imblearn", "skimage", "PIL", "yaml", "openpyxl", "matplotlib", "psutil", "jupyterlab"]
+            "imblearn", "skimage", "PIL", "yaml", "openpyxl", "matplotlib", "psutil", "jupyterlab",
+            "radiomics", "SimpleITK", "ctgan", "lpips"]
 
 
 def check_imports() -> dict:
@@ -33,12 +34,34 @@ def check_imports() -> dict:
 def check_device() -> dict:
     import torch
 
+    cuda = bool(torch.cuda.is_available())
     return {
-        "cuda_available": bool(torch.cuda.is_available()),
-        "cuda_devices": torch.cuda.device_count() if torch.cuda.is_available() else 0,
+        "cuda_available": cuda,
+        "cuda_devices": torch.cuda.device_count() if cuda else 0,
+        "gpu_names": [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())] if cuda else [],
+        "gpu_memory_gb": [round(torch.cuda.get_device_properties(i).total_memory / 1e9, 1) for i in range(torch.cuda.device_count())] if cuda else [],
+        "torch_cuda": torch.version.cuda,
         "torch_threads": torch.get_num_threads(),
         "cpu_count": os.cpu_count(),
     }
+
+
+def check_gpu_smoke() -> dict:
+    """Uji kecil di GPU (maju-mundur dengan fp16). Bila tidak ada GPU: TIDAK_TERSEDIA, bukan LULUS."""
+    import torch
+
+    if not torch.cuda.is_available():
+        return {"status": "TIDAK_TERSEDIA", "detail": "CUDA tidak terdeteksi"}
+    try:
+        lin = torch.nn.Linear(256, 256).cuda()
+        x = torch.randn(64, 256, device="cuda")
+        with torch.autocast("cuda", dtype=torch.float16):
+            loss = lin(x).float().square().mean()
+        loss.backward()
+        torch.cuda.synchronize()
+        return {"status": "LULUS", "detail": f"maju-mundur fp16 di {torch.cuda.get_device_name(0)}"}
+    except Exception as e:  # noqa: BLE001
+        return {"status": "GAGAL", "detail": repr(e)}
 
 
 def check_dataset_readonly(dataset_dir: str) -> dict:
@@ -80,6 +103,7 @@ def main() -> int:
               "image_digest": os.environ.get("IMAGE_DIGEST", "tidak-diketahui")}
     report["imports"] = check_imports()
     report["device"] = check_device()
+    report["gpu_smoke"] = check_gpu_smoke()
     report["dataset"] = ({"status": "DILEWATI"} if args.skip_dataset
                          else check_dataset_readonly(cfg["paths"]["dataset"]))
     report["weights"] = ({"status": "DILEWATI"} if args.skip_weights

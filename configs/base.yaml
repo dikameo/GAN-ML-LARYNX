@@ -1,0 +1,35 @@
+# Konfigurasi dasar. Tidak ada angka ajaib di kode: semua nilai tetap ada di sini.
+# Sumber nilai: PRD.md (bagian dan ID dicantumkan di komentar).
+
+seed: 42                      # seed global; seed job diturunkan dari (lipatan, skenario) lewat src.utils.job_seed
+
+paths:
+  dataset: /data/Larynx_CE-NBI_Dataset   # dipasang baca-saja (RULES §2)
+  outputs: /outputs
+  hf_cache: /outputs/hf_cache
+
+model:
+  hf_name: microsoft/swin-tiny-patch4-window7-224   # PRD §14, FR-05
+  num_classes: 2
+  input_size: 224                                    # PRD §5 langkah 3
+
+preprocess:
+  normalize: imagenet          # keputusan 2026-11-08: mean/std ImageNet tetap (mengubah PRD §5 langkah 4)
+  imagenet_mean: [0.485, 0.456, 0.406]
+  imagenet_std: [0.229, 0.224, 0.225]
+
+train:                         # FR-05
+  optimizer: adamw
+  lr: 1.0e-4
+  weight_decay: 0.05
+  batch_size: 32
+  max_epochs: 30
+  early_stop_patience: 5
+  weighted_sampling: true
+
+benchmark:                     # hanya untuk CP0
+  warmup_steps: 2
+  timed_steps: 6
+  # Asumsi ukuran latih untuk ekstrapolasi satu epoch: 11.144 citra x 80% (lipatan latih) x 85% (setelah validasi 15%).
+  # Ini asumsi, bukan hasil pengukuran; angka sebenarnya ditentukan setelah split (CP2).
+  assumed_train_images: 7578

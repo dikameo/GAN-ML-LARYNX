@@ -1,0 +1,2 @@
+_base: base.yaml
+scenario: S2     # Swin-T beku, SMOTE pada embedding, kepala linear (PRD §6)

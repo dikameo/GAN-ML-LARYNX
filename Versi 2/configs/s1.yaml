@@ -1,0 +1,2 @@
+_base: base.yaml
+scenario: S1     # Swin-T pralatih, weighted sampling, tanpa augmentasi generatif (PRD §6)

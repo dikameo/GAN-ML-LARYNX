@@ -1,0 +1,8 @@
+_base: base.yaml
+scenario: S7_S5
+splits_name: s7
+gan:
+  lambda_roi: 0.0
+synthetic:
+  gan_scenario: S7_S5
+  ratio: null        # diisi per job oleh peluncur; dipilih dari VALIDASI di dalam split S7 (L5), bukan dari CV utama

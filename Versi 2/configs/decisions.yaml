@@ -1,0 +1,48 @@
+# Keputusan terbuka PRD §11 dan keputusan desain tambahan (RULES §6: ditulis di repositori, bukan hanya di chat).
+# status: diputuskan | ditunda | menunggu_konfirmasi
+D1:
+  status: diputuskan
+  tanggal: 2026-11-08
+  isi: "Laptop CPU tidak layak untuk S1 (benchmark: 0,068 citra/dtk, ~31 jam/epoch). Pelatihan dipindah ke mesin lain; profil dan perangkat tujuan dicatat oleh benchmark CP0 di mesin itu."
+D2:
+  status: menunggu_konfirmasi
+  isi: "Rekomendasi PRD yang diterapkan sebagai nilai awal program: lambda_roi dipilih dari FID pada pasien VALIDASI di dalam lipatan latih (rep0, lipatan 0), kriteria val_fid terendah, ditetapkan sebelum eksperimen (src.pilot_lambda). Data uji tidak dipakai. Dikonfirmasi lewat: python -m src.approve decide D2 --by NAMA"
+D3:
+  status: menunggu_konfirmasi
+  isi: "Rekomendasi PRD yang diterapkan sebagai nilai awal program: LASSO alpha 0,001 (proposal) sebagai utama; alpha 0,01 (kode Wang dkk.) dijalankan sebagai analisis sensitivitas berlabel eksploratif. Dikonfirmasi lewat: python -m src.approve decide D3 --by NAMA"
+D4:
+  status: menunggu_konfirmasi
+  isi: "Rekomendasi PRD: bootstrap atas pasien, probabilitas tiap pasien dirata-ratakan antar ulangan. Belum dikonfirmasi peneliti. Dikonfirmasi lewat: python -m src.approve decide D4 --by NAMA"
+D5:
+  status: ditunda
+  isi: "Hosting website; website di luar cakupan program ini."
+D6:
+  status: menunggu_konfirmasi
+  isi: "Usulan program: 50 citra penyetel Frangi dipilih acak (seed tetap) dari seluruh cache; ID pasien dicatat di roi_examples_patients.csv. Karena tiap pasien menjadi pasien uji di salah satu lipatan, ini ditulis sebagai keterbatasan (parameter tidak memakai label). Dikonfirmasi lewat: python -m src.approve decide D6 --by NAMA"
+D7:
+  status: menunggu_konfirmasi
+  isi: "Dataset tidak punya mask segmentasi lesi. Ekstraksi PyRadiomics (S3/S4) memakai mask area pandang (seluruh citra yang tidak hitam), bukan mask lesi. Ini berbeda dari Wang dkk. dan perlu dikonfirmasi. Alternatif: radiomics.mask=roi (peta pembuluh). Dikonfirmasi lewat: python -m src.approve decide D7 --by NAMA"
+D8:
+  status: menunggu_konfirmasi
+  isi: "PRD tidak menentukan bagaimana citra sintetis (tanpa ROI masukan) mendapat mask untuk D_roi, dan tidak menyertakan kode StyleGAN2-ADA resmi (butuh kompilasi CUDA). Implementasi di sini: GAN kondisional kelas bergaya StyleGAN2 ringkas, augmentasi adaptif versi ringan (ADA-lite), dan D_roi menilai (citra x peta pembuluh lunak) yang dihitung dari citra itu sendiri dengan filter Frangi diferensiabel di torch (real dan palsu lewat operator yang sama). Peta ROI biner skimage tetap dipakai untuk cache/Gambar 3.2. Bila ingin kode resmi StyleGAN2-ADA, modul src/gan/ dapat diganti. Dikonfirmasi lewat: python -m src.approve decide D8 --by NAMA"
+perubahan_prd:
+  - tanggal: 2026-11-08
+    bagian: "PRD §5 langkah 4"
+    isi: "Normalisasi memakai mean/std ImageNet tetap, bukan statistik data latih per lipatan."
+    alasan: "Bobot Swin pralatih mengharapkan statistik ImageNet; embedding S2 dihitung sekali (PRD §6)."
+    persetujuan: "Peneliti 1 (pengguna sesi ini). Menunggu penulis kedua (RULES §6)."
+  - tanggal: 2026-11-08
+    bagian: "Cakupan program"
+    isi: "Pembatasan CP0-CP3 dicabut: program ditulis untuk S1-S7 (CP0-CP7). Website (CP8) tidak termasuk. Benchmark StyleGAN2-ADA resmi diganti src.bench_gan untuk implementasi di repositori ini."
+    alasan: "Pelatihan dipindah ke mesin ber-GPU; program harus siap dijalankan di sana."
+    persetujuan: "Peneliti 1 (pengguna sesi ini). Menunggu penulis kedua (RULES §6)."
+  - tanggal: 2026-11-08
+    bagian: "PRD §6 S7 dan §13 CP6"
+    isi: "S7: tes tunggal pada 4 resolusi gabungan; pelatihan memakai n_repeats pembagian latih/validasi acak dari pasien 1280x1008 (config s7.n_repeats) untuk S1 dan konfigurasi terbaik S5 dan S6."
+    alasan: "PRD hanya menyebut 'kira-kira 10 job'; rincian ini perlu persetujuan."
+    persetujuan: "Peneliti 1 (pengguna sesi ini). Menunggu penulis kedua (RULES §6)."
+  - tanggal: 2026-11-13
+    bagian: "PRD §6 S7 dan §10 L5"
+    isi: "S7: rasio sintetis S5/S6 dipilih dari val_loss_balanced pasien validasi DI DALAM split S7 (resolusi mayoritas), satu rasio untuk semua ulangan; bukan dari best_config.json CV utama. Ketiga rasio dilatih di S7 (biaya klasifikator 3x, GAN tetap satu per ulangan)."
+    alasan: "Validasi CV utama memuat pasien resolusi minor yang menjadi pasien uji S7, sehingga pemilihan dari sana melanggar L5 (pasien uji tidak dipakai memilih model). lambda_roi S7_S6 masih dari pilot CV utama: keterbatasan tercatat, belum diubah."
+    persetujuan: "Peneliti 1 (pengguna sesi ini, 2026-11-13). Menunggu penulis kedua (RULES §6)."

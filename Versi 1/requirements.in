@@ -1,0 +1,27 @@
+# Dependensi tingkat atas. requirements.lock dihasilkan dari berkas ini di dalam
+# kontainer (scripts/lock.ps1), tidak ditulis tangan. Tambah pustaka di sini lalu bangun ulang.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+transformers
+numpy
+pandas
+scipy
+scikit-learn
+imbalanced-learn
+scikit-image
+pillow
+pyyaml
+openpyxl
+matplotlib
+tqdm
+psutil
+jupyterlab
+nbformat
+nbclient
+ipykernel
+pytest
+pyradiomics
+SimpleITK
+ctgan
+lpips

@@ -1,0 +1,9 @@
+_base: base.yaml
+scenario: S7_S6
+splits_name: s7
+gan:
+  lambda_roi: null   # sama dengan pilot D2
+synthetic:
+  gan_scenario: S7_S6
+  ratio: best
+  best_from: S6

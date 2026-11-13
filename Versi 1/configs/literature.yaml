@@ -1,0 +1,15 @@
+# Bahan Tabel 3.4 (perbandingan dengan penelitian terdahulu). TIDAK ADA angka yang dikarang:
+# isi dari sumbernya; baris tanpa nilai ditampilkan kosong. Angka Wang dkk. di bawah dikutip dari PRD §2.
+rows:
+  - sumber: "Wang dkk. (2026) [12]"
+    data: "Radiomik, 30 pasien uji (7 ganas), validasi silang"
+    metrik: "median F1"
+    nilai_validasi_silang: 0.970
+    nilai_uji: 0.851
+    catatan: "dikutip dari PRD §2; GAN = CTGAN tabular"
+  - sumber: "(isi dari Tabel 3.4 proposal)"
+    data: ""
+    metrik: ""
+    nilai_validasi_silang: null
+    nilai_uji: null
+    catatan: "isi manual dari proposal"

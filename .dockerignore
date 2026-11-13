@@ -1,8 +1,0 @@
-data
-outputs
-docs
-.git
-.pytest_cache
-__pycache__
-*.pyc
-PROMPT_AWAL.md

@@ -1,7 +1,0 @@
-_base: base.yaml
-scenario: S5        # cGAN tanpa ROI (lambda_roi = 0) + Swin-T pada data asli + sintetis; rasio lewat --ratio (PRD §6)
-gan:
-  lambda_roi: 0.0
-synthetic:
-  gan_scenario: S5
-  ratio: null

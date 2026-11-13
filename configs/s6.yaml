@@ -1,7 +1,0 @@
-_base: base.yaml
-scenario: S6        # cGAN berpandu ROI vaskular (metode usulan); lambda_roi dari outputs/cp4/lambda_selection.json (D2)
-gan:
-  lambda_roi: null
-synthetic:
-  gan_scenario: S6
-  ratio: null

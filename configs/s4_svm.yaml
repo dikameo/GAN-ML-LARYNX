@@ -1,6 +1,0 @@
-_base: base.yaml
-scenario: S4_svm
-s3:
-  model: svm
-  lasso_alpha: 0.001
-  use_ctgan: true

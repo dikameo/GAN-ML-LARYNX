@@ -1,6 +1,0 @@
-_base: base.yaml
-scenario: S3_lda
-s3:
-  model: lda
-  lasso_alpha: 0.001
-  use_ctgan: false

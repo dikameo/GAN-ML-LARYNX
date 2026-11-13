@@ -1,26 +1,2 @@
-# Data medis dan artefak besar (RULES.md bagian 5)
-data/
-outputs/*
-!outputs/.gitkeep
-!outputs/**/manifest.json
-!outputs/**/benchmark.json
-!outputs/**/audit.csv
-!outputs/**/results_*.csv
-*.pt
-*.pth
-*.npy
-*.npz
-*.memmap
-*.pkl
-
-# Python / Jupyter
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
-.pytest_cache/
-.venv/
-
-# Website: bobot ekspor dan contoh demo (data medis) tidak masuk git
-website/model/
-website/examples/
-*.bak
+# Data medis tidak boleh masuk git (RULES.md bagian 5). Dataset berada di Training/data.
+/data/
